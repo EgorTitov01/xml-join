@@ -1,6 +1,10 @@
 from lxml import etree
 from pyexcelerate import Workbook, Style, Font
 
+def process_xml(f_users, f_departments, output_path):
+    to_xlsx(prepare_data(f_users, f_departments), output_path)
+    print(f"Merging '{f_users}' and '{f_departments}' into '{output_path}'...")
+
 
 def prepare_data(file_u,  file_deps):
 
@@ -30,7 +34,7 @@ def prepare_data(file_u,  file_deps):
         return [columns] + list(users_dict.values())
 
 
-def to_xlsx(data):
+def to_xlsx(data, output_path):
     wb = Workbook()
     ws = wb.new_sheet("Sheet1", data=data)
 
@@ -38,8 +42,7 @@ def to_xlsx(data):
     for col in range(1,9):
         ws.get_col_style(col).size = 20
 
-    wb.save("user_deps.xlsx")
-    print("Файл создан.")
+    wb.save(output_path + '/' + "user_deps.xlsx")
 
 
 
