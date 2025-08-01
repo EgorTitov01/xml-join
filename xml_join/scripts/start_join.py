@@ -1,114 +1,189 @@
-"""
-XML → XLSX Joiner (Toga + WinForms backend)
-
-Требует:  pythonnet  +toga-core +toga-winforms
-          (под Windows 10/11 .NET Framework 4.8 уже установлен)
-
-Сборка EXE (из той же папки):
-    pyinstaller --noconsole --onefile ^
-        --hidden-import=clr ^
-        --hidden-import=pythonnet ^
-        --collect-submodules=toga_winforms ^
-        --copy-metadata=toga-core --copy-metadata=toga-winforms ^
-        xml_join_toga.py
-"""
-from __future__ import annotations
-from xml_join.join import process_xml
+import toga
+from toga.style import Pack
+from toga.style.pack import COLUMN, ROW
 import os
 import sys
 from pathlib import Path
 
-# ──────────────────── pythonnet: до импорта Toga ────────────────────
-if sys.platform.startswith("win"):
-    try:
-        import pythonnet  # noqa: WPS433
-        pythonnet.set_runtime("msnet48")  # .NET Framework 4.8
-    except Exception:                      # fallback — задать через env
-        os.environ.setdefault("PYTHONNET_RUNTIME", "msnet")
-
-# ──────────────────────────── GUI ────────────────────────────
-import toga
-from toga.style import Pack
-from toga.style.pack import COLUMN, LEFT
+# Добавляем родительскую директорию в путь для импорта модулей
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from xml_join.join import process_xml
 
 
-class XMLJoinerApp(toga.App):
-    def startup(self) -> None:            # создаём интерфейс
+class XMLJoinApp(toga.App):
+    def __init__(self):
+        super().__init__(
+            formal_name="XML Join Tool",
+            app_id="org.xmljoin.tool",
+            app_name="xml_join_tool",
+            version="1.0.0",
+            description="Tool for joining XML files with user and department data"
+        )
         self.xml1_path = None
         self.xml2_path = None
-        self.xlsx_path = None
+        self.output_path = None
 
-        main = toga.Box(style=Pack(direction=COLUMN, padding=16))
+    def startup(self):
+        # Создаем главное окно
+        main_box = toga.Box(style=Pack(direction=COLUMN, padding=20))
 
-        # ─── XML #1 ───
-        main.add(toga.Button("Выбрать XML #1…", on_press=self.pick_xml1,
-                             style=Pack(padding=(0, 8))))
-        self.lbl1 = toga.Label("XML #1: (не выбрано)",
-                               style=Pack(padding=(0, 8), alignment=LEFT))
-        main.add(self.lbl1)
+        # Заголовок
+        title = toga.Label(
+            'XML Join Tool',
+            style=Pack(font_size=24, font_weight='bold', padding_bottom=20)
+        )
+        main_box.add(title)
 
-        # ─── XML #2 ───
-        main.add(toga.Button("Выбрать XML #2…", on_press=self.pick_xml2,
-                             style=Pack(padding=(0, 8))))
-        self.lbl2 = toga.Label("XML #2: (не выбрано)",
-                               style=Pack(padding=(0, 8), alignment=LEFT))
-        main.add(self.lbl2)
+        # Выбор первого XML файла
+        xml1_box = toga.Box(style=Pack(direction=ROW, padding=5))
+        xml1_label = toga.Label('XML файл 1 (пользователи):', style=Pack(width=200))
+        self.xml1_path_label = toga.Label('Не выбран', style=Pack(flex=1))
+        xml1_button = toga.Button(
+            'Выбрать файл',
+            on_press=self.select_xml1,
+            style=Pack(padding_left=10)
+        )
+        xml1_box.add(xml1_label)
+        xml1_box.add(self.xml1_path_label)
+        xml1_box.add(xml1_button)
+        main_box.add(xml1_box)
 
-        # ─── XLSX ───
-        main.add(toga.Button("Сохранить как XLSX…", on_press=self.pick_xlsx,
-                             style=Pack(padding=(0, 8))))
-        self.lbl3 = toga.Label("XLSX: (не выбрано)",
-                               style=Pack(padding=(0, 8), alignment=LEFT))
-        main.add(self.lbl3)
+        # Выбор второго XML файла
+        xml2_box = toga.Box(style=Pack(direction=ROW, padding=5))
+        xml2_label = toga.Label('XML файл 2 (департаменты):', style=Pack(width=200))
+        self.xml2_path_label = toga.Label('Не выбран', style=Pack(flex=1))
+        xml2_button = toga.Button(
+            'Выбрать файл',
+            on_press=self.select_xml2,
+            style=Pack(padding_left=10)
+        )
+        xml2_box.add(xml2_label)
+        xml2_box.add(self.xml2_path_label)
+        xml2_box.add(xml2_button)
+        main_box.add(xml2_box)
 
-        # ─── Merge ───
-        main.add(toga.Button("Объединить", on_press=self.merge_files,
-                             style=Pack(padding=(12, 16))))
+        # Выбор папки для сохранения
+        output_box = toga.Box(style=Pack(direction=ROW, padding=5))
+        output_label = toga.Label('Папка для сохранения:', style=Pack(width=200))
+        self.output_path_label = toga.Label('Не выбрана', style=Pack(flex=1))
+        output_button = toga.Button(
+            'Выбрать папку',
+            on_press=self.select_output_folder,
+            style=Pack(padding_left=10)
+        )
+        output_box.add(output_label)
+        output_box.add(self.output_path_label)
+        output_box.add(output_button)
+        main_box.add(output_box)
 
-        self.main_window = toga.MainWindow(self.formal_name)
-        self.main_window.content = main
+        # Кнопка обработки
+        process_button = toga.Button(
+            'Обработать файлы',
+            on_press=self.process_files,
+            style=Pack(padding_top=20)
+        )
+        main_box.add(process_button)
+
+        # Статус
+        self.status_label = toga.Label(
+            'Готов к обработке',
+            style=Pack(padding_top=20, font_size=12)
+        )
+        main_box.add(self.status_label)
+
+        # Создаем главное окно
+        self.main_window = toga.MainWindow(title='XML Join Tool')
+        self.main_window.content = main_box
         self.main_window.show()
 
-    # ────────── Callbacks ──────────
-    def pick_xml1(self, _: toga.Widget) -> None:
-        path = self.main_window.open_file_dialog("Выберите первый XML",
-                                                 initial_directory=str(Path.home()))
-        if path:
-            self.xml1_path, self.lbl1.text = path, f"XML #1: {path}"
-
-    def pick_xml2(self, _: toga.Widget) -> None:
-        start = str(Path(self.xml1_path).parent) if self.xml1_path else str(Path.home())
-        path = self.main_window.open_file_dialog("Выберите второй XML",
-                                                 initial_directory=start)
-        if path:
-            self.xml2_path, self.lbl2.text = path, f"XML #2: {path}"
-
-    def pick_xlsx(self, _: toga.Widget) -> None:
-        start = str(Path(self.xml1_path).parent) if self.xml1_path else str(Path.home())
-        path = self.main_window.save_file_dialog("Сохранить как XLSX",
-                                                 suggested_filename="merged.xlsx",
-                                                 initial_directory=start)
-        if path:
-            if not path.lower().endswith(".xlsx"):
-                path += ".xlsx"
-            self.xlsx_path, self.lbl3.text = path, f"XLSX: {path}"
-
-    def merge_files(self, _: toga.Widget) -> None:
-        if not all((self.xml1_path, self.xml2_path, self.xlsx_path)):
-            self.main_window.error_dialog("Ошибка", "Не выбраны все файлы!")
-            return
+    async def select_xml1(self, widget):
         try:
-            process_xml(self.xml1_path, self.xml2_path, self.xlsx_path)
-            self.main_window.info_dialog("Готово",
-                                         f"Файл сохранён:\n{self.xlsx_path}")
-        except Exception as exc:          # pragma: no cover
-            self.main_window.error_dialog("Ошибка обработки", str(exc))
+            file_path = await self.main_window.open_file_dialog(
+                title='Выберите первый XML файл',
+                file_types=['xml']
+            )
+            if file_path:
+                self.xml1_path = str(file_path)
+                self.xml1_path_label.text = os.path.basename(self.xml1_path)
+                self.update_status()
+        except Exception as e:
+            self.status_label.text = f'Ошибка при выборе файла: {str(e)}'
+
+    async def select_xml2(self, widget):
+        try:
+            file_path = await self.main_window.open_file_dialog(
+                title='Выберите второй XML файл',
+                file_types=['xml']
+            )
+            if file_path:
+                self.xml2_path = str(file_path)
+                self.xml2_path_label.text = os.path.basename(self.xml2_path)
+                self.update_status()
+        except Exception as e:
+            self.status_label.text = f'Ошибка при выборе файла: {str(e)}'
+
+    async def select_output_folder(self, widget):
+        try:
+            folder_path = await self.main_window.open_folder_dialog(
+                title='Выберите папку для сохранения'
+            )
+            if folder_path:
+                self.output_path = str(folder_path)
+                self.output_path_label.text = os.path.basename(self.output_path)
+                self.update_status()
+        except Exception as e:
+            self.status_label.text = f'Ошибка при выборе папки: {str(e)}'
+
+    def update_status(self):
+        if self.xml1_path and self.xml2_path and self.output_path:
+            self.status_label.text = 'Все файлы выбраны. Готов к обработке.'
+        else:
+            missing = []
+            if not self.xml1_path:
+                missing.append('XML файл 1')
+            if not self.xml2_path:
+                missing.append('XML файл 2')
+            if not self.output_path:
+                missing.append('папка для сохранения')
+            self.status_label.text = f'Не выбрано: {", ".join(missing)}'
+
+    async def process_files(self, widget):
+        if not all([self.xml1_path, self.xml2_path, self.output_path]):
+            self.status_label.text = 'Пожалуйста, выберите все необходимые файлы и папку.'
+            return
+
+        try:
+            self.status_label.text = 'Обработка файлов...'
+            
+            # Вызываем функцию обработки из модуля join
+            process_xml(self.xml1_path, self.xml2_path, self.output_path)
+            
+            self.status_label.text = 'Обработка завершена успешно!'
+            
+            # Показываем сообщение об успехе
+            await self.main_window.dialog(toga.InfoDialog(
+                'Успех',
+                f'Файлы успешно обработаны!\n\n'
+                f'XML 1: {os.path.basename(self.xml1_path)}\n'
+                f'XML 2: {os.path.basename(self.xml2_path)}\n'
+                f'Результат сохранен в: {self.output_path}/user_deps.xlsx'
+            ))
+            
+        except Exception as e:
+            error_msg = f'Ошибка при обработке файлов: {str(e)}'
+            self.status_label.text = error_msg
+            
+            # Показываем сообщение об ошибке
+            await self.main_window.dialog(toga.ErrorDialog(
+                'Ошибка',
+                error_msg
+            ))
 
 
-def main() -> XMLJoinerApp:              # требуется Briefcase’ом
-    return XMLJoinerApp("XML → XLSX Joiner", "org.example.xmljoiner")
+def main():
+    return XMLJoinApp()
 
 
-if __name__ == "__main__":
-    main().main_loop()
-
+if __name__ == '__main__':
+    app = main()
+    app.main_loop()
