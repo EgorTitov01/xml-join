@@ -539,6 +539,18 @@ typing = ["typing-extensions ; python_version < \"3.10\""]
 xmp = ["defusedxml"]
 
 [[package]]
+name = "poetry-core"
+version = "2.1.3"
+description = "Poetry PEP 517 Build Backend"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "poetry_core-2.1.3-py3-none-any.whl", hash = "sha256:2c704f05016698a54ca1d327f46ce2426d72eaca6ff614132c8477c292266771"},
+    {file = "poetry_core-2.1.3.tar.gz", hash = "sha256:0522a015477ed622c89aad56a477a57813cace0c8e7ff2a2906b7ef4a2e296a4"},
+]
+
+[[package]]
 name = "pycairo"
 version = "1.28.0"
 description = "Python interface for cairo"
@@ -899,4 +911,4 @@ dev = ["coverage-conditional-plugin (==0.9.0)", "coverage[toml] (==7.9.2)", "pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.14"
-content-hash = "60764ba2ca4c0b23f06ee064b47f5cfae409303cf56b7e09250ffaffe46ae6ad"
+content-hash = "30dd968ff26c9461926e7abcf9f7e8061473a70f77a432d5091bb3b8ad13c72a"
