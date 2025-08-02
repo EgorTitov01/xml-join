@@ -8,12 +8,13 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "lxml (>=6.0.0,<7.0.0)",
-    "pyexcelerate (>=0.13.0,<0.14.0)",
-    "toga-core (>=0.5.2,<0.6.0)",
-    "toga-winforms (>=0.5.2,<0.6.0)",
-    "pythonnet (>=3.0.5,<4.0.0)",
-    "pyinstaller (>=6.14.2,<7.0.0)",
+    "lxml>=6.0.0,<7.0.0",
+    "pyexcelerate>=0.13.0,<0.14.0",
+    "toga>=0.5.2,<0.6.0",
+    "toga-core>=0.5.2,<0.6.0",
+    "toga-winforms>=0.5.2,<0.6.0",
+    "pythonnet>=3.0.5,<4.0.0",
+    "pyinstaller>=6.14.2,<7.0.0",
 ]
 
 [tool.poetry]

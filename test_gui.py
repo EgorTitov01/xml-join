@@ -43,6 +43,22 @@ def test_app_creation():
             print(f"✗ Ошибка создания приложения: {e}")
             return False
 
+def test_gui_run():
+    """Тестирует запуск GUI (только на Windows)"""
+    import platform
+    if platform.system() != 'Windows':
+        print("⚠ Тест GUI пропущен (не Windows)")
+        return True
+    
+    try:
+        from xml_join.scripts.start_join import XMLJoinApp
+        app = XMLJoinApp()
+        print("✓ GUI приложение готово к запуску")
+        return True
+    except Exception as e:
+        print(f"✗ Ошибка запуска GUI: {e}")
+        return False
+
 def main():
     print("Тестирование GUI приложения...")
     print("-" * 40)
@@ -57,10 +73,16 @@ def main():
     if not test_app_creation():
         success = False
     
+    # Тест запуска GUI
+    if not test_gui_run():
+        success = False
+    
     print("-" * 40)
     if success:
         print("✓ Все тесты прошли успешно!")
         print("GUI приложение готово к использованию.")
+        print("\nДля запуска GUI используйте:")
+        print("python -m xml_join.scripts.start_join")
     else:
         print("✗ Некоторые тесты не прошли.")
         return 1

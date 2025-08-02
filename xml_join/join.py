@@ -1,5 +1,6 @@
 from lxml import etree
 from pyexcelerate import Workbook, Style, Font
+from datetime import datetime
 
 def process_xml(f_users, f_departments, output_path):
     to_xlsx(prepare_data(f_users, f_departments), output_path)
@@ -42,7 +43,13 @@ def to_xlsx(data, output_path):
     for col in range(1,9):
         ws.get_col_style(col).size = 20
 
-    wb.save(output_path + '/' + "user_deps.xlsx")
+    # Получаем текущую дату в формате ДД_ММ_ГГГГ
+    current_date = datetime.now().strftime("%d_%m_%Y")
+    
+    # Создаем имя файла с датой
+    filename = f"user_deps_{current_date}.xlsx"
+    
+    wb.save(output_path + '/' + filename)
 
 
 
