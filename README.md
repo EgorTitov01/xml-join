@@ -4,7 +4,7 @@
 
 ## Возможности
 
-- GUI интерфейс для выбора XML файлов и папки сохранения
+- Консольное приложение для обработки XML файлов
 - Объединение данных о пользователях и департаментах
 - Экспорт результата в Excel файл (XLSX)
 - Упаковка в исполняемый exe файл для Windows
@@ -15,10 +15,16 @@
 poetry install
 ```
 
-## Запуск GUI приложения
+## Запуск приложения
 
+### Как Python модуль
 ```bash
-poetry run python xml_join/scripts/start_join.py
+poetry run python xml_join/join.py --users users.xml --deps departments.xml --output output_folder
+```
+
+### Как exe файл
+```bash
+xml_join.exe --users users.xml --deps departments.xml --output output_folder
 ```
 
 ## Сборка exe файла
@@ -35,16 +41,31 @@ poetry run python build_exe.py
 poetry run pyinstaller xml_join.spec
 ```
 
-После сборки exe файл будет находиться в папке `dist/xml_join_tool.exe`.
+После сборки exe файл будет находиться в папке `dist/xml_join.exe`.
 
 ## Использование
 
-1. Запустите приложение (GUI или exe)
-2. Выберите первый XML файл с данными о пользователях
-3. Выберите второй XML файл с данными о департаментах
-4. Выберите папку для сохранения результата
-5. Нажмите "Обработать файлы"
-6. Результат будет сохранен как `user_deps.xlsx` в выбранной папке
+### Синтаксис
+```bash
+xml_join.exe --users <users_file> --deps <departments_file> --output <output_folder>
+```
+
+### Параметры
+- `--users` - XML файл с данными о пользователях
+- `--deps` - XML файл с данными о департаментах  
+- `--output` - Папка для сохранения результата
+
+### Примеры
+```bash
+# Использование Python модуля
+python -m xml_join.join --users users.xml --deps departments.xml --output output_folder
+
+# Использование exe файла
+xml_join.exe --users users.xml --deps departments.xml --output output_folder
+```
+
+### Результат
+Результат будет сохранен как `user_deps_DD_MM_YYYY.xlsx` в указанной папке.
 
 ## Структура проекта
 
@@ -52,10 +73,7 @@ poetry run pyinstaller xml_join.spec
 xml-join1/
 ├── xml_join/
 │   ├── __init__.py
-│   ├── join.py              # Основная логика обработки XML
-│   └── scripts/
-│       ├── __init__.py
-│       └── start_join.py    # GUI приложение с Toga
+│   └── join.py              # Основная логика обработки XML
 ├── xml_join.spec            # Конфигурация PyInstaller
 ├── build_exe.py             # Скрипт сборки exe
 ├── pyproject.toml           # Зависимости проекта
@@ -64,9 +82,6 @@ xml-join1/
 
 ## Зависимости
 
-- `toga-core` - GUI фреймворк
-- `toga-winforms` - Windows backend для Toga
-- `pythonnet` - .NET интеграция для Windows
 - `lxml` - обработка XML файлов
 - `pyexcelerate` - создание Excel файлов
 - `pyinstaller` - упаковка в exe
@@ -74,5 +89,4 @@ xml-join1/
 ## Требования
 
 - Python 3.10-3.13
-- Windows (для GUI и exe)
 - Poetry для управления зависимостями

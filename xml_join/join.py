@@ -1,10 +1,16 @@
 from lxml import etree
 from pyexcelerate import Workbook, Style, Font
 from datetime import datetime
+import sys
+import argparse
 
 def process_xml(f_users, f_departments, output_path):
-    to_xlsx(prepare_data(f_users, f_departments), output_path)
-    print(f"Merging '{f_users}' and '{f_departments}' into '{output_path}'...")
+    try:
+        to_xlsx(prepare_data(f_users, f_departments), output_path)
+        print(f"Merging '{f_users}' and '{f_departments}' into '{output_path}'...")
+    except Exception as e:
+        print(f"Ошибка при обработке файлов. Проверьте правильность путей к файлам и наличие ошибок в файлах.")
+        sys.exit(1)
 
 
 def prepare_data(file_u,  file_deps):
@@ -50,6 +56,36 @@ def to_xlsx(data, output_path):
     filename = f"user_deps_{current_date}.xlsx"
     
     wb.save(output_path + '/' + filename)
+    print(f"Файл сохранен: {output_path}/{filename}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Утилита для объединения XML файлов с данными о пользователях и департаментах',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Примеры использования:
+  python -m xml_join.join --users users.xml --deps departments.xml --output output_folder
+  ./xml_join.exe --users users.xml --deps departments.xml --output output_folder
+        """
+    )
+    
+    parser.add_argument('--users', required=True, help='XML файл с данными о пользователях')
+    parser.add_argument('--deps', required=True, help='XML файл с данными о департаментах')
+    parser.add_argument('--output', required=True, help='Папка для сохранения результата')
+    
+    args = parser.parse_args()
+    
+    try:
+        process_xml(args.users, args.deps, args.output)
+        print("Обработка завершена успешно!")
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
 
 
 

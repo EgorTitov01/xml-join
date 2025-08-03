@@ -3,21 +3,11 @@
 block_cipher = None
 
 a = Analysis(
-    ['xml_join/scripts/start_join.py'],
+    ['xml_join/join.py'],
     pathex=[],
     binaries=[],
     datas=[('icon.ico', '.')],  # Включаем иконку в сборку
     hiddenimports=[
-        'toga',
-        'toga.core',
-        'toga.window',
-        'toga.app',
-        'toga.box',
-        'toga.label',
-        'toga.button',
-        'toga.main_window',
-        'toga.style',
-        'toga.style.pack',
         'lxml',
         'lxml.etree',
         'pyexcelerate',
@@ -26,11 +16,10 @@ a = Analysis(
         'pyexcelerate.Font',
         'xml_join',
         'xml_join.join',
-        'xml_join.scripts',
-        'xml_join.scripts.start_join',
         'pathlib',
         'os',
         'sys',
+        'datetime',
     ],
     hookspath=[],
     hooksconfig={},
@@ -51,14 +40,14 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='XML Join',
+    name='xml_join',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,  # False для GUI приложения
+    console=True,  # True для консольного приложения
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

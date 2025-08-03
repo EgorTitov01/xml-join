@@ -13,13 +13,6 @@ def check_dependencies():
     print("Проверка зависимостей...")
     
     try:
-        import toga
-        print("✓ Toga установлен")
-    except ImportError:
-        print("✗ Toga не установлен")
-        return False
-    
-    try:
         import lxml
         print("✓ lxml установлен")
     except ImportError:
@@ -93,7 +86,7 @@ def build_exe():
         print("Exe файл находится в папке dist/")
         
         # Проверяем, что файл создался
-        exe_path = Path("dist/XML Join.exe")
+        exe_path = Path("dist/xml_join.exe")
         if exe_path.exists():
             print(f"✓ Файл создан: {exe_path.absolute()}")
             print(f"Размер файла: {exe_path.stat().st_size / (1024*1024):.1f} MB")
@@ -113,7 +106,7 @@ def build_exe():
 
 def test_exe():
     """Тестирует созданный exe файл"""
-    exe_path = Path("dist/XML Join.exe")
+    exe_path = Path("dist/xml_join.exe")
     if not exe_path.exists():
         print("✗ Exe файл не найден для тестирования")
         return False
@@ -121,7 +114,7 @@ def test_exe():
     print("Тестирование exe файла...")
     try:
         # Запускаем exe с флагом --help или просто проверяем, что он запускается
-        result = subprocess.run([str(exe_path)], 
+        result = subprocess.run([str(exe_path), "--help"], 
                               capture_output=True, 
                               text=True, 
                               timeout=10)
