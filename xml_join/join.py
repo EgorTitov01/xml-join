@@ -33,11 +33,11 @@ def prepare_data(file_u,  file_deps):
             dep_name = deps_dict.get(user_txt[11], '')
             if not users_dict.get(user_txt[0]):
                 users_dict[user_txt[0]] = [user_txt[9], user_txt[2], user_txt[1],
-                                       user_txt[3], user_txt[8], user_txt[10], dep_name, '']
+                                       user_txt[3], user_txt[8], user_txt[10], dep_name, user_txt[6][:10], '']
             else:
                 users_dict[user_txt[0]][6] += ('/ ' + dep_name)
 
-        columns = ['Логин', 'Имя', 'Фамилия', 'Отчество', 'E-Mail', 'Должность', 'Подразделения', 'Личный мобильный' ]
+        columns = ['Логин', 'Имя', 'Фамилия', 'Отчество', 'E-Mail', 'Должность', 'Подразделения', 'Дата приема', 'Личный мобильный' ]
         return [columns] + list(users_dict.values())
 
 
